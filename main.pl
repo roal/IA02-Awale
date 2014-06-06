@@ -1,11 +1,8 @@
-﻿%dynamique
-%:- asserta(jeu('Joueur 1',[4,4,4,4,4,4])).
-%:- asserta(jeu('Joueur 2',[4,4,4,4,4,4])).
-%:- asserta(score('Joueur 1',0)).
-%:- asserta(score('Joueur 2',0)).
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% UN TOUR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 tourPlateau(J1, J2, PJ1, PJ2, Case, PJ1Fin, PJ2Fin, GrainesRamassees):- Case < 7, Case > 0,
 																		write("appel \n"),
 																		nombreGrainesDansCase(Case, PJ1, NbGrainesCase),
@@ -33,7 +30,7 @@ distribPlateauJ2(J2,J1,PJ2,PJ1,NbGraines,CaseArrivee,NewP2):- distribuerSurPlate
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISTRIBUTION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%param (Prise, Case, NbGrainesCase, [T|Q]PJ1, NewPJ1, CaseArrive, NbGrainesRestantes)
+%param(Prise, Case, NbGrainesCase, [T|Q]PJ1, NewPJ1, CaseArrive, NbGrainesRestantes)
 %Prise = 0 pour plateau du joueur, 1 pour plateau adverse
 %Case = Case en cours de traitement
 %Case > 1 -> copie la tete de PJ1 dans NewPJ1
@@ -81,9 +78,9 @@ prise(1, T, FinalT, NbGraines, FinalNbGraines):- FinalT is T + 1, FinalNbGraines
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% RAMASSAGE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%param (J1, Ja, P2AvtRamasse, PJ2Fin, CaseA, GrainesRamassees, Iterator)
+%param(J1, Ja, P2AvtRamasse, PJ2Fin, CaseA, GrainesRamassees, Iterator)
 
-%Joueur = joueur courant (var dynamique)
+%Joueur = joueur courant(var dynamique)
 %Pa = Plateau d'arrive
 %P2AvtRamasse = Plateau J2 a la fin du tour, avant ramassage
 %PJ2Fin = Plateau J2 apres ramassage
@@ -111,9 +108,9 @@ ramasse(T, NewT, _):- NewT is T.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GESTION JEU %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%update
-miseAjourPlateau(Joueur, Plateau):- retract(jeu(Joueur,_)), assert(jeu(Joueur,Plateau)).
-miseAjourScore(Joueur, Score):- retract(score(Joueur,_)), assert(score(Joueur,Score)).
+%update%
+%miseAjourPlateau(Joueur, Plateau):- retract(jeu(Joueur,_)), assert(jeu(Joueur,Plateau)).
+%miseAjourScore(Joueur, Score):- retract(score(Joueur,_)), assert(score(Joueur,Score)).
 
 %initialisation
 commencerJeu:- afficherPlateaux([4,4,4,4,4,4], [4,4,4,4,4,4]),
@@ -152,7 +149,6 @@ afficherPlateaux(P1, P2):- write('affiche plateau'),
 							write(RevertedP2), nl,
 							write(P1), nl.
 afficherScore(S1,S2):- write('Le score Joueur 1 : '), write(S1), write('; J2 : '), write(S2), nl.
-
 
 
 
