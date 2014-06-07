@@ -34,19 +34,19 @@ distribPlateauJ2(J2,J1,PJ2,PJ1,NbGraines,CaseArrivee,NewP2):- distribuerSurPlate
 %Prise = 0 pour plateau du joueur, 1 pour plateau adverse
 %Case = Case en cours de traitement
 %Case > 1 -> copie la tete de PJ1 dans NewPJ1
-distribuerSurPlateau(_, Case, NbGrainesCase, [T|Q], NewPJ1, CaseArrive, NbGrainesRestantes):- Case > 1, append(T, NewPJ1, NewPJ1), 
+distribuerSurPlateau(_, Case, NbGrainesCase, [T|Q], NewPJ1, CaseArrive, NbGrainesRestantes):- Case > 1, append([T], NewPJ1, NewPJ1), 
 																							NewCase is Case - 1,
 																							distribuerSurPlateau(0, NewCase, NbGrainesCase, Q, NewPJ1, CaseArrive, NbGrainesRestantes).
 
 %Case ==1 -> Vide la case
 distribuerSurPlateau(Prise, 1, NbGrainesCase, [T|Q], NewPJ1, CaseArrive, NbGrainesRestantes):- prise(Prise, T, FinalT, NbGrainesCase, FinalNbGraines),
-																							append(T, NewPJ1, NewPJ1),
-																							NewCase is Case - 1,
+																							append([T], NewPJ1, NewPJ1),
+																							NewCase is 0,
 																							distribuerSurPlateau(0, NewCase, FinalNbGraines, Q, NewPJ1, CaseArrive, NbGrainesRestantes).
 																							
 %case < 1 -> Ajoute une graine et nbGraines-1
 distribuerSurPlateau(_, Case, NbGrainesCase, [T|Q], NewPJ1, CaseArrive, NbGrainesRestantes):- Case < 1, Tmp is T + 1,
-																							append(Tmp, NewPJ1, NewPJ1),
+																							append([Tmp], NewPJ1, NewPJ1),
 																							NbGrainesCase is NbGrainesCase - 1,
 																							NewCase is Case - 1,
 																							distribuerSurPlateau(0, NewCase, NbGrainesCase, Q, NewPJ1, CaseArrive, NbGrainesRestantes).
@@ -89,15 +89,15 @@ prise(1, T, FinalT, NbGraines, FinalNbGraines):- FinalT is T + 1, FinalNbGraines
 %si le plateau d'arrivee est celui du joueur, aucun ramassage
 calculNombreDeGrainesRamassees(J1, Pa, P2AvtRamasse, PJ2Fin, _, GrainesRamassees):- J1 =:= Pa, !, PJ2Fin =:= P2AvtRamasse, GrainesRamassees is 0.
 calculNombreDeGrainesRamassees(J1, _, [T|Q], PJ2Fin, CaseA, GrainesRamassees):- CaseA < 1, !, ramasse(T, NewT, GrainesRamassees), 
-																			append(NewT, PJ2Fin, PJ2Fin),
+																			append([NewT], PJ2Fin, PJ2Fin),
 																			NewCase is CaseA - 1,
 																			calculNombreDeGrainesRamassees(J1, Q, PJ2Fin, NewCase, GrainesRamassees).
 
 calculNombreDeGrainesRamassees(J1, _, [T|Q], PJ2Fin, 1, GrainesRamassees):- !, ramasse(T, NewT, GrainesRamassees), 
-																			append(NewT, PJ2Fin, PJ2Fin),
+																			append([NewT], PJ2Fin, PJ2Fin),
 																			calculNombreDeGrainesRamassees(J1, Q, PJ2Fin, 0, GrainesRamassees).
 
-calculNombreDeGrainesRamassees(J1, _, [T|Q], PJ2Fin, CaseA, GrainesRamassees):- CaseA > 1, !, append(T, PJ2Fin, PJ2Fin),
+calculNombreDeGrainesRamassees(J1, _, [T|Q], PJ2Fin, CaseA, GrainesRamassees):- CaseA > 1, !, append([T], PJ2Fin, PJ2Fin),
 																			NewCase is CaseA - 1,
 																			calculNombreDeGrainesRamassees(J1, Q, PJ2Fin, NewCase, GrainesRamassees).
 																			
