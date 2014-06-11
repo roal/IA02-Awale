@@ -1,5 +1,9 @@
+:-use_module(liste).
+:-use_module(minimax).
+
 :- dynamic( plateau1/1 ).
 :- dynamic( plateau2/1 ).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PREDICAT DE MAJ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 majPlateaux(P1, P2):- retract(plateau1(_)),
 					retract(plateau2(_)),
@@ -12,12 +16,11 @@ majPlateaux(P1, P2):- retract(plateau1(_)),
 tourPlateau(J1, J2, PJ1, PJ2, Case, PJ1Fin, PJ2Fin, GrainesRamassees):- Case < 7, Case > 0,
 																		nombreGrainesDansCase(Case, PJ1, NbGrainesCase),
 																		NbGrainesCase > 0,
-																		write('appel siPremiereDistribPossible'), nl,
 																		siPremiereDistribPossible(J1, J2, PJ1, PJ2, Case, PJ1Fin, PJ2Fin, NbGrainesCase, GrainesRamassees).
 
 %premiere distrib
-siPremiereDistribPossible(J1, J2, PJ1, PJ2, Case, PJ1, PJ2, 0, NbGrainesRamassees):- !, fail.
-siPremiereDistribPossible(J1, J2, PJ1, PJ2, Case, PJ1Fin, PJ2Fin, NbGrainesCase, NbGrainesRamassees):- write('entre siPremiereDistribPossible'), nl, NbGrainesCase > 0, !,
+siPremiereDistribPossible(_, _, PJ1, PJ2, _, PJ1, PJ2, 0, _):- !, fail.
+siPremiereDistribPossible(J1, J2, PJ1, PJ2, Case, PJ1Fin, PJ2Fin, NbGrainesCase, NbGrainesRamassees):- NbGrainesCase > 0, !,
 																						distribuerSurPlateau(0, Case, NbGrainesCase, PJ1, [], NewPJ1, CaseArrive, NbGrainesRestantes),
 																						reverse(NewPJ1, RevertedPJ1),
 																						majPlateaux(RevertedPJ1, PJ2),
@@ -25,13 +28,11 @@ siPremiereDistribPossible(J1, J2, PJ1, PJ2, Case, PJ1Fin, PJ2Fin, NbGrainesCase,
 
 %distribution sur le plateau adverse
 siDeuxiemeDistribPossible(J2, J1, PJ2, PJ1, PJ2Fin, PJ1Fin, NbGrainesRestantes, NbGrainesRamassees):- NbGrainesRestantes \== 0, !,
-																										P2AvtRamasse is NbGrainesRestantes,
 																										distribPlateauJ2(J2, J1, PJ2, PJ1, NbGrainesRestantes, CaseArrivee, NewPJ2, NewNbGraines),
 																										reverse(NewPJ2, RevertedPJ2),
 																										majPlateaux(PJ1, RevertedPJ2),
-																										write(NewNbGraines),
-																										\+siPremiereDistribPossible(J1, J2, PJ1, RevertedPJ2, 1, PJ1Fin, PJ2Fin, NewNbGraines, NbGrainesRamassees).
-																										%calculNombreDeGrainesRamassees(J1,Ja,P2AvtRamasse,PJ2Fin,CaseArrivee,NbGrainesRamassees).
+																										\+siPremiereDistribPossible(J1, J2, PJ1, RevertedPJ2, 1, PJ1Fin, PJ2Fin, NewNbGraines, NbGrainesRamassees),
+																										calculNombreDeGrainesRamassees(J1,Ja,RevertedPJ2,[],PJ2Fin,CaseArrivee,NbGrainesRamassees).
 siDeuxiemeDistribPossible(J2, J1, PJ2, NewPJ1, PJ2Fin, PJ1Fin, 0, 0).
 
 distribPlateauJ2(J2, J1, PJ2, PJ1, NbGraines, CaseArrivee, NewP2, NbGrainesReste):- distribuerSurPlateau(1, 1, NbGraines, PJ2, [], NewP2, CaseArrivee, NbGrainesReste).
@@ -39,8 +40,8 @@ distribPlateauJ2(J2, J1, PJ2, PJ1, NbGraines, CaseArrivee, NewP2, NbGrainesReste
 
 /*TEST*/
 testplateau:- afficherPlateaux([4,4,4,4,4,4], [4,4,4,4,4,4]),
-					asserta(plateau1([4,4,4,4,4,4])),
-					asserta(plateau2([4,4,4,4,4,4])),
+			asserta(plateau1([4,4,4,4,4,4])),
+			asserta(plateau2([4,4,4,4,4,4])),
 			tourPlateau(J1, J2, [4,4,4,4,4,4], [4,4,4,4,4,4], 3, PJ1Fin, PJ2Fin, GrainesRamassees),
 			write('graines ramassees '), write(GrainesRamassees), nl,
 			plateau1(P1), plateau2(P2),
@@ -52,8 +53,8 @@ testplateau:- afficherPlateaux([4,4,4,4,4,4], [4,4,4,4,4,4]),
 %Case = Case en cours de traitement
 
 %cas ou nombre graines restantes = 0
-distribuerSurPlateau(_, Case, 0, [], Inter, Inter, CaseArrive, NbGrainesRestantes):- CaseArrive is Case, NbGrainesRestantes is 0, !, write('nb graines restante = 0').
-distribuerSurPlateau(_, Case, 0, Reste, Inter, PlateauFin, CaseArrive, NbGrainesRestantes):- CaseArrive is Case, NbGrainesRestantes is 0, concat(Reste, Inter, PlateauFin), !, write('nb graines restante = 0').
+distribuerSurPlateau(_, Case, 0, [], Inter, Inter, CaseArrive, NbGrainesRestantes):- CaseArrive is Case + 1, NbGrainesRestantes is 0, !, write('nb graines restante = 0').
+distribuerSurPlateau(_, Case, 0, Reste, Inter, PlateauFin, CaseArrive, NbGrainesRestantes):- CaseArrive is Case + 1, NbGrainesRestantes is 0, concat(Reste, Inter, PlateauFin), !, write('nb graines restante = 0').
 
 %cas ou on arrive a la fin du plateau
 distribuerSurPlateau(_, _, NbGrainesCase, [], Inter, Inter, CaseArrive, NbGrainesRestantes):- CaseArrive is 99,
@@ -102,22 +103,20 @@ prise(1, Case, T, FinalT, NbGraines, FinalNbGraines):- Case < 1, FinalT is T, Fi
 %CaseA = Case d'arrivee
 
 %si le plateau d'arrivee est celui du joueur, aucun ramassage
-calculNombreDeGrainesRamassees(J1, Pa, P2AvtRamasse, PJ2Fin, _, GrainesRamassees):- J1 =:= Pa, !, PJ2Fin =:= P2AvtRamasse, GrainesRamassees is 0.
-calculNombreDeGrainesRamassees(J1, _, [T|Q], PJ2Fin, CaseA, GrainesRamassees):- CaseA < 1, !, ramasse(T, NewT, GrainesRamassees), 
-																			append(NewT, PJ2Fin, PJ2Fin),
+%calculNombreDeGrainesRamassees(J1, Pa, P2AvtRamasse, PJ2Fin, _, GrainesRamassees):- J1 =:= Pa, !, PJ2Fin =:= P2AvtRamasse, GrainesRamassees is 0.
+calculNombreDeGrainesRamassees(J1, Pa, [], Inter, PJ2Fin, CaseA, 0).
+calculNombreDeGrainesRamassees(J1, Pa, [T|Q], Inter, PJ2Fin, CaseA, TotalGrainesRamassees):- CaseA >= 1, !, ramasse(T, NewT, NbGraines), 
 																			NewCase is CaseA - 1,
-																			calculNombreDeGrainesRamassees(J1, Q, PJ2Fin, NewCase, GrainesRamassees).
+																			calculNombreDeGrainesRamassees(J1, Pa, Q, [NewT|Inter], PJ2Fin, NewCase, GrainesRamassees),
+																			TotalGrainesRamassees is GrainesRamassees + NbGraines.
 
-calculNombreDeGrainesRamassees(J1, _, [T|Q], PJ2Fin, 1, GrainesRamassees):- !, ramasse(T, NewT, GrainesRamassees), 
-																			append(NewT, PJ2Fin, PJ2Fin),
-																			calculNombreDeGrainesRamassees(J1, Q, PJ2Fin, 0, GrainesRamassees).
-
-calculNombreDeGrainesRamassees(J1, _, [T|Q], PJ2Fin, CaseA, GrainesRamassees):- CaseA > 1, !, append(T, PJ2Fin, PJ2Fin),
+calculNombreDeGrainesRamassees(J1, Pa, [T|Q], Inter, PJ2Fin, CaseA, GrainesRamassees):- CaseA < 1, !,
 																			NewCase is CaseA - 1,
-																			calculNombreDeGrainesRamassees(J1, Q, PJ2Fin, NewCase, GrainesRamassees).
-																			
-ramasse(T, NewT, GrainesRamassees):- T >= 2, T =< 3, !, GrainesRamassees is GrainesRamassees + T, NewT is 0.
-ramasse(T, NewT, _):- NewT is T.
+																			calculNombreDeGrainesRamassees(J1, Pa, Q, [T|Inter], PJ2Fin, NewCase, GrainesRamassees).
+
+ramasse(T, NewT, 0):- NewT is T, !.
+ramasse(T, 0, T):- T >= 2, T =< 3.
+
 
 
 
@@ -173,24 +172,3 @@ afficherScore(S1,S2):- write('Le score Joueur 1 : '), write(S1), write('; J2 : '
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% OPERATIONS SUR LISTE %%%%%%%%%%%%%%%%%%%%%
-
-
-imprime([]).
-imprime([T|Q]):- write(T), nl, imprime(Q).
-imprime(X):- plateau(X,A), imprime(A).
-
-
-nombreGrainesDansCase(Case, PJ1, NbGraines):- iemeElt(Case, 1, PJ1, NbGraines).
-
-iemeElt(_, _, [], _):- !.
-iemeElt(Case, N, [T|_], E):- N =:= Case, E is T, !.
-iemeElt(Case, N, [_|Q], E):- N =\= Case, New_N is N+1, iemeElt(Case, New_N, Q, E).
-
-setElt(Case, Valeur, [T|Q]):- iemeElt(Case, 1, [T|Q], E), E is Valeur.
-
-concat([], L, L).
-concat([T|Q], L, [T|R]):- concat(Q,L,R).
-
-copieTete([T|_], L):- L is [T|L].
-supprimeTete([_|Q], newL):- newL is Q.
