@@ -83,11 +83,11 @@ siTroisieme(J1, J2, P1, P2AvtRam, Case, CaseOrigin, CaseArrivee, NbGrainesRestan
 																						
 /**************TEST***************************/
 testplateau:- asserta(plateau1([2,1,0,0,4,4])),
-			asserta(plateau2([1,0,0,15,3,4])),
+			asserta(plateau2([0,0,0,15,3,4])),
 			asserta(score1(0)),
 			asserta(score2(0)),
 			afficherEtat,
-			tourJeu.
+			tourJeu(2).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISTRIBUTION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
