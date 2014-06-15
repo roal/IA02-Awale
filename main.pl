@@ -20,6 +20,13 @@ majPlateaux(0, 1, P1, P2):- retract(plateau1(_)),
 majScores(1, 0, Add):- score1(Old), retract(score1(_)), NewScore is Old + Add, asserta(score1(NewScore)).
 majScores(0, 1, Add):- score2(Old), retract(score2(_)), NewScore is Old + Add, asserta(score2(NewScore)).
 
+majScoresSup(1, 0, Sup):- score1(Old), retract(score1(_)), NewScore is Old - Sup, asserta(score1(NewScore)).
+majScoresSup(0, 1, Sup):- score2(Old), retract(score2(_)), NewScore is Old -Sup, asserta(score2(NewScore)).
+
+getScore(1, 0, S1, S2):- score1(S1), score2(S2).
+getScore(0, 1, S1, S2):- score1(S2), score2(S1).
+
+
 getPlateaux(1, 0, P1, P2):- plateau1(P1), plateau2(P2).
 getPlateaux(0, 1, P1, P2):- plateau1(P2), plateau2(P1).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% UN TOUR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -30,6 +37,12 @@ tourPlateau(J1, J2, Case):- Case < 7, Case > 0,
 						NbGrainesCase > 0,
 						CaseOrigin is - Case + 2,
 						siPremiereDistribPossible(J1, J2, P1, P2, Case, CaseOrigin, NbGrainesCase).
+
+tourPlateau(J1, J2, Case):- Case < 7, Case > 0,
+						getPlateaux(J1, J2, P1, P2),
+						nombreGrainesDansCase(Case, P1, NbGrainesCase),
+						NbGrainesCase =:= 0,!.
+
 
 %premiere distrib
 siPremiereDistribPossible(_, _, P1, P2, _, P1, P2, 0, _):- !, fail.
