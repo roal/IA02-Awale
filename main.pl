@@ -59,9 +59,10 @@ siTroisieme(J1, J2, P1, P2AvtRam, _, _, CaseArrivee, 0):- !, CaseArriveeReelle i
 														majPlateaux(J1, J2, P1, P2Fin).
 
 %sinon on distribue une nouvelle fois sur le premier plateau
-siTroisieme(J1, J2, P1, P2AvtRam, Case, CaseOrigin, CaseArrivee, NbGrainesRestantes):- distribuerSurPlateau(0, Case, CaseOrigin, NbGrainesRestantes, P1, [], NewP1, CaseArrive, 0),
+siTroisieme(J1, J2, P1, P2AvtRam, Case, CaseOrigin, CaseArrivee, NbGrainesRestantes):- distribuerSurPlateau(0, Case, CaseOrigin, NbGrainesRestantes, P1, [], NewP1, CaseArrive, NewNbGraines),
 																						reverse(NewP1, RevertedP1),
-																						majPlateaux(J1, J2, RevertedP1, P2AvtRam).
+																						majPlateaux(J1, J2, RevertedP1, P2AvtRam),
+																						siDeuxiemeDistribPossible(J2, J1, CaseOrigin, P2AvtRam, RevertedP1, NewNbGraines).
 																						
 																						
 /**************TEST***************************/
@@ -136,7 +137,7 @@ calculNombreDeGrainesRamassees([T|Q], Inter, PJ2Fin, CaseA, TotalGrainesRamassee
 																			TotalGrainesRamassees is GrainesRamassees + NbGraines.
 %Si un ramassage n'est pas possible, on stop
 calculNombreDeGrainesRamassees([T|Q], Inter, PJ2Fin, CaseA, 0):- CaseA =< 1, !, \+ramasse(T, NewT, NbGraines), 
-																concat([T|Q],Inter, PJ2Fin).
+																vider([T|Q],Inter, PJ2Fin).
 
 calculNombreDeGrainesRamassees([T|Q], Inter, PJ2Fin, CaseA, GrainesRamassees):- CaseA > 1,
 																			NewCase is CaseA - 1,
@@ -156,8 +157,8 @@ ramassageValide(P2Inter, _, P2Inter, NbGraines, NbGraines).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GESTION JEU %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %initialisation
-init:- asserta(plateau1([4,4,4,4,4,4])),
-		asserta(plateau2([4,4,4,4,4,4])),
+init:- asserta(plateau1([2,1,0,0,4,4])),
+		asserta(plateau2([1,0,0,15,3,4])),
 		asserta(score1(0)),
 		asserta(score2(0)).
 
