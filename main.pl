@@ -42,7 +42,7 @@ tourPlateau(J1, J2, Case):- Case < 7, Case > 0,
 						siPremiereDistribPossible(J1, J2, P1, P2, Case, CaseOrigin, NbGrainesCase).
 
 tourPlateau(J1, J2, Case):- Case < 7, Case > 0,
-						getPlateaux(J1, J2, P1, P2),
+						getPlateaux(J1, J2, P1, _),
 						nombreGrainesDansCase(Case, P1, NbGrainesCase),
 						NbGrainesCase =:= 0,!.
 
@@ -52,7 +52,7 @@ siPremiereDistribPossible(_, _, P1, P2, _, P1, P2, 0, _):- !, fail.
 siPremiereDistribPossible(J1, J2, P1, P2, Case, CaseOrigin, NbGrainesCase):- !, distribuerSurPlateau(0, Case, 99, NbGrainesCase, P1, [], NewP1, _, NbGrainesRestantes),
 																			reverse(NewP1, RevertedP1),
 																			majPlateaux(J1, J2, RevertedP1, P2),
-																			write('1er distrib : P1 = '), write(RevertedP1), write(';   P2 = '), write(P2), nl,
+																			%write('1er distrib : P1 = '), write(RevertedP1), write(';   P2 = '), write(P2), nl,
 																			siDeuxiemeDistribPossible(J2, J1, CaseOrigin, P2, RevertedP1, NbGrainesRestantes).
 
 %distribution sur le plateau adverse
@@ -60,7 +60,7 @@ siDeuxiemeDistribPossible(_, _, _, _, _, 0):- !.
 siDeuxiemeDistribPossible(J2, J1, CaseOrigin, P2, P1, NbGrainesRestantes):- distribPlateauJ2(J2, J1, P2, P1, NbGrainesRestantes, CaseArrivee, NewP2, NewNbGrainesRestantes),
 																			reverse(NewP2, P2AvtRam),
 																			majPlateaux(J1, J2, P1, P2AvtRam),
-																			write('2eme distrib : P1 = '), write(P1), write(';   P2 = '), write(P2AvtRam), nl,
+																			%write('2eme distrib : P1 = '), write(P1), write(';   P2 = '), write(P2AvtRam), nl,
 																			siTroisieme(J1, J2, P1, P2AvtRam, 1, CaseOrigin, CaseArrivee, NewNbGrainesRestantes).
 
 distribPlateauJ2(_, _, P2, _, NbGraines, CaseArrivee, NewP2, NbGrainesReste):- distribuerSurPlateau(1, 1, 99, NbGraines, P2, [], NewP2, CaseArrivee, NbGrainesReste).
@@ -137,7 +137,7 @@ prise(0, 1, 99, _, FinalT, NbGraines, FinalNbGraines):- FinalT is 0, FinalNbGrai
 prise(0, Case, Case, _, 0, NbGraines, NbGraines):- !.
 
 prise(0, 1, CaseOrigin, T, FinalT, NbGraines, FinalNbGraines):- CaseOrigin > -5, CaseOrigin < 2,
-																FinalT is T + 1, FinalNbGraines is NbGraines - 1, !
+																FinalT is T + 1, FinalNbGraines is NbGraines - 1, !.
 %S'il n'y pas eu de cut jusqu'a lors, on ajoute une graine a la case
 prise(0, Case, _, T, FinalT, NbGraines, FinalNbGraines):- Case < 1, FinalT is T + 1, FinalNbGraines is NbGraines - 1.
 
@@ -168,7 +168,7 @@ calculNombreDeGrainesRamassees([T|Q], Inter, PJ2Fin, CaseA, TotalGrainesRamassee
 																			calculNombreDeGrainesRamassees(Q, [NewT|Inter], PJ2Fin, NewCase, GrainesRamassees),
 																			TotalGrainesRamassees is GrainesRamassees + NbGraines.
 %Si un ramassage n'est pas possible, on stop
-calculNombreDeGrainesRamassees([T|Q], Inter, PJ2Fin, CaseA, 0):- CaseA =< 1, !, \+ramasse(T, NewT, NbGraines), 
+calculNombreDeGrainesRamassees([T|Q], Inter, PJ2Fin, CaseA, 0):- CaseA =< 1, !, \+ramasse(T, _, _), 
 																vider([T|Q],Inter, PJ2Fin).
 %Si CaseA > 1, on ne touche a rien
 calculNombreDeGrainesRamassees([T|Q], Inter, PJ2Fin, CaseA, GrainesRamassees):- CaseA > 1,
@@ -201,33 +201,43 @@ init:- asserta(plateau1([4,4,4,4,4,4])),
 		asserta(score1(0)),
 		asserta(score2(0)).
 
-commencerJeu:- init, afficherEtat, tourJeu.
+commencerJeu:- init, choixPartie(Type), afficherEtat, tourJeu(Type).
 
-tourJeu:-joueurJoue,
-		\+partieFinie,
-		iaJoue,
-		\+partieFinie,
-		tourJeu.
+choixPartie(Type):- write('Choisissez le type de partie\n1 : Avec IA\n2 : 2 humains\n'),
+					read(Type).
 
-partieFinie:- score1(S1), S1 >= 25, !.
-partieFinie:- score2(S2), S2 >= 25.
+tourJeu(1):- joueur1Joue,
+			\+partieFinie,
+			iaJoue,
+			\+partieFinie,
+			tourJeu(1).
+					
+tourJeu(2):- joueur1Joue,
+			\+partieFinie,
+			joueur2Joue,
+			\+partieFinie,
+			tourJeu(2).
 
-
-joueurJoue:- write('Au joueur 1 de jouer. Entrez le numéro de la case à jouer : '), 
+joueur1Joue:- write('Au joueur 1 de jouer. Entrez le numéro de la case à jouer : '), 
 			read(ChoixCase),
 			tourPlateau(1, 0, ChoixCase),
 			afficherEtat.
 
-iaJoue:- write('Au joueur 2 de jouer. Entrez le numéro de la case à jouer : '), 
-		read(ChoixCase),
+joueur2Joue:- write('Au joueur 2 de jouer. Entrez le numéro de la case à jouer : '), 
+			read(ChoixCase),
+			tourPlateau(0, 1, ChoixCase),
+			afficherEtat.
+
+iaJoue:- write('Au tour de l\'IA : '), 
+		caseAJouer(ChoixCase, 0, 1),
 		tourPlateau(0, 1, ChoixCase),
 		afficherEtat.
-
+			
+partieFinie:- score1(S1), S1 >= 25, !.
+partieFinie:- score2(S2), S2 >= 25.
+			
 afficherEtat:- plateau1(PJ1), plateau2(PJ2), score1(S1), score2(S2),
 				write('Etat du jeu : '), nl,
 				reverse(PJ2, RevertedPJ2),
 				write('J2 : '), write(RevertedPJ2), write(' score : '), write(S2), nl,
 				write('J1 : '), write(PJ1), write(' score : '), write(S1), nl.
-
-
-
