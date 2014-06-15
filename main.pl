@@ -1,6 +1,8 @@
+%Chargement des modules
 :-use_module(liste).
 :-use_module(minimax).
 
+%Consitutions des predicats dynamiques
 :- dynamic(plateau1/1).
 :- dynamic(plateau2/1).
 :- dynamic(score1/1).
@@ -26,9 +28,10 @@ majScoresSup(0, 1, Sup):- score2(Old), retract(score2(_)), NewScore is Old -Sup,
 getScore(1, 0, S1, S2):- score1(S1), score2(S2).
 getScore(0, 1, S1, S2):- score1(S2), score2(S1).
 
-
 getPlateaux(1, 0, P1, P2):- plateau1(P1), plateau2(P2).
 getPlateaux(0, 1, P1, P2):- plateau1(P2), plateau2(P1).
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% UN TOUR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 tourPlateau(J1, J2, Case):- Case < 7, Case > 0,
@@ -93,8 +96,11 @@ testplateau:- asserta(plateau1([2,1,0,0,4,4])),
 %Case = Case en cours de traitement
 
 %cas ou nombre graines restantes = 0
-distribuerSurPlateau(_, Case, _, 0, [], Inter, Inter, CaseArrive, NbGrainesRestantes):- CaseArrive is Case + 1, NbGrainesRestantes is 0, !.
-distribuerSurPlateau(_, Case, _, 0, Reste, Inter, PlateauFin, CaseArrive, NbGrainesRestantes):- CaseArrive is Case + 1, NbGrainesRestantes is 0, vider(Reste, Inter, PlateauFin), !.
+distribuerSurPlateau(_, Case, _, 0, [], Inter, Inter, CaseArrive, NbGrainesRestantes):- CaseArrive is Case + 1,
+																						NbGrainesRestantes is 0, !.
+distribuerSurPlateau(_, Case, _, 0, Reste, Inter, PlateauFin, CaseArrive, NbGrainesRestantes):- CaseArrive is Case + 1,
+																							NbGrainesRestantes is 0,
+																							vider(Reste, Inter, PlateauFin), !.
 
 %cas ou on arrive a la fin du plateau
 distribuerSurPlateau(_, _, _, NbGrainesCase, [], Inter, Inter, CaseArrive, NbGrainesRestantes):- CaseArrive is 99,
@@ -105,7 +111,8 @@ distribuerSurPlateau(_, Case, CaseOrigin, NbGrainesCase, [T|Q], Inter, NewP1, Ca
 																							distribuerSurPlateau(0, NewCase, CaseOrigin, NbGrainesCase, Q, [T|Inter], NewP1, CaseArrive, NbGrainesRestantes).
 
 %Case ==1 -> Vide la case sur plateau Jcourant | ajoute une graine ds la case sur plateau adverse
-distribuerSurPlateau(Prise, 1, CaseOrigin, NbGrainesCase, [T|Q], Inter, NewP1, CaseArrive, NbGrainesRestantes):- !, prise(Prise, 1, CaseOrigin, T, FinalT, NbGrainesCase, FinalNbGraines),
+distribuerSurPlateau(Prise, 1, CaseOrigin, NbGrainesCase, [T|Q], Inter, NewP1, CaseArrive, NbGrainesRestantes):- !, 
+																							prise(Prise, 1, CaseOrigin, T, FinalT, NbGrainesCase, FinalNbGraines),
 																							distribuerSurPlateau(Prise, 0, CaseOrigin, FinalNbGraines, Q, [FinalT|Inter], NewP1, CaseArrive, NbGrainesRestantes).
 																							
 %case < 1 -> Ajoute une graine et nbGraines-1 sur plateau Jcourant | Laisse en place la case sur plateau adverse
@@ -113,35 +120,49 @@ distribuerSurPlateau(Prise, Case, CaseOrigin, NbGrainesCase, [T|Q], Inter, NewP1
 																							CaseTmp is Case - 1,
 																							distribuerSurPlateau(Prise, CaseTmp, CaseOrigin, FinalNbGraines, Q, [FinalT|Inter], NewP1, CaseArrive, NbGrainesRestantes).
 
-
-%param (Prise, T, FinalT, NbGraines, FinalNbGraines)
+/**** prise -> determine le nouveau nombre de graines dans la case en cours de traitement****/
+%param (Prise, Case, CaseOrigin, T, FinalT, NbGrainesCase, FinalNbGraines)
 %Prise = 0 pour plateau du joueur, 1 pour plateau adverse
+%Case = n° de la case en cours de traitement
+%CaseOrigin = n° de la case jouee initialiement
+%T = nb graines dans la case
+%FinalT = nouveau nb graines dans la case
+%NbGraines = nb graine a distribuer
+%FinalNbGraines = nouveau nb graine a distribuer
+
+%cas ou on est sur la case choisie lors de la premiere distribution de graines
 prise(0, 1, 99, _, FinalT, NbGraines, FinalNbGraines):- FinalT is 0, FinalNbGraines is NbGraines.
 
-%Si case = caseOrigin, alors on fait 2eme tour sur plateau 1 et on ne doit pas mettre de graine ds cette case
+%Si case = caseOrigin, alors on est entrain de faire un 2eme tour sur plateau 1 et on ne doit pas mettre de graine ds cette case
 prise(0, Case, Case, _, 0, NbGraines, NbGraines):- !.
 
-prise(0, 1, CaseOrigin, T, FinalT, NbGraines, FinalNbGraines):- CaseOrigin > -5, CaseOrigin < 2, FinalT is T + 1, FinalNbGraines is NbGraines - 1, !.
+prise(0, 1, CaseOrigin, T, FinalT, NbGraines, FinalNbGraines):- CaseOrigin > -5, CaseOrigin < 2,
+																FinalT is T + 1, FinalNbGraines is NbGraines - 1, !
+%S'il n'y pas eu de cut jusqu'a lors, on ajoute une graine a la case
 prise(0, Case, _, T, FinalT, NbGraines, FinalNbGraines):- Case < 1, FinalT is T + 1, FinalNbGraines is NbGraines - 1.
 
 %si on distribue sur le plateau adverse et quon appel prise, on ajoutera toujours une graine
 prise(1, _, _, T, FinalT, NbGraines, FinalNbGraines):- FinalT is T + 1, FinalNbGraines is NbGraines - 1.
 
+
+%%%%%%%%%%%%%%%%%%%%%%EXEMPLE DE PREDICATS POUR CALCULER LA CASE D'ARRIVEE (NON UTILISE)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %calculerCaseArrivee(Case1, _, CaseArrive):- Case1 > 0, nombreGrainesDansCase(Case1, PJ1, NbGrainesCase), CaseTmp is Case1 + NbGrainesCase, CaseTmp =< 6, CaseArrive is CaseTmp.
 %calculerCaseArrivee(Case1, _, CaseArrive):- Case1 > 0, nombreGrainesDansCase(Case1, PJ1, NbGrainesCase), CaseTmp is Case1 + NbGrainesCase, CaseTmp > 6, CaseArrive is 99.
 %calculerCaseArrivee(_, Case2, CaseArrive):- Case2 > 0, nombreGrainesDansCase(Case2, PJ2, NbGrainesCase), CaseTmp is Case2 + NbGrainesCase, CaseTmp =< 6, CaseArrive is CaseTmp.
 %calculerCaseArrivee(_, Case2, CaseArrive):- Case2 > 0, nombreGrainesDansCase(Case2, PJ2, NbGrainesCase), CaseTmp is Case2 + NbGrainesCase, CaseTmp > 6, CaseArrive is 99.
 
 
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% RAMASSAGE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%param(P2AvtRamasse, PJ2Fin, CaseA, GrainesRamassees, Iterator)
-
+/**** parcours le plateau a reculons pour ramasser les graines ****/
+%param(P2AvtRamasse, Inter, PJ2Fin, CaseA, GrainesRamassees)
 %P2AvtRamasse = Plateau J2 a la fin du tour, avant ramassage
+%Inter = Plateau en cours de construction
 %PJ2Fin = Plateau J2 apres ramassage
 %CaseA = Case d'arrivee
+
+%Unifie Inter et le plateau final quand le plateau adverse est vide
 calculNombreDeGrainesRamassees([], Inter, Inter, _, 0).
+%Si CaseA =< 1, on traite des cases ou il y a eu distribution
 calculNombreDeGrainesRamassees([T|Q], Inter, PJ2Fin, CaseA, TotalGrainesRamassees):- CaseA =< 1, ramasse(T, NewT, NbGraines), !,
 																			NewCase is CaseA - 1,
 																			calculNombreDeGrainesRamassees(Q, [NewT|Inter], PJ2Fin, NewCase, GrainesRamassees),
@@ -149,13 +170,20 @@ calculNombreDeGrainesRamassees([T|Q], Inter, PJ2Fin, CaseA, TotalGrainesRamassee
 %Si un ramassage n'est pas possible, on stop
 calculNombreDeGrainesRamassees([T|Q], Inter, PJ2Fin, CaseA, 0):- CaseA =< 1, !, \+ramasse(T, NewT, NbGraines), 
 																vider([T|Q],Inter, PJ2Fin).
-
+%Si CaseA > 1, on ne touche a rien
 calculNombreDeGrainesRamassees([T|Q], Inter, PJ2Fin, CaseA, GrainesRamassees):- CaseA > 1,
 																			NewCase is CaseA - 1,
 																			calculNombreDeGrainesRamassees(Q, [T|Inter], PJ2Fin, NewCase, GrainesRamassees).
 
+%param(T, NewT, NbGraines)
+%T = valeur de la case
+%NewT = nouvelle valeure pour la case
+%NbGraines = nb graines ramassees
 
+%%Si la case contient 2 ou 3 graines, on ramasse
 ramasse(T, 0, T):- T >= 2, T =< 3, !.
+
+%%Sinon le ramassage échoue et on rammasse 0.
 ramasse(_, _, 0):- fail.
 
 %si le plateau du joueur adverse ne contient plus de graine apres le ramassage, 
