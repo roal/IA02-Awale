@@ -66,15 +66,13 @@ siTroisieme(J1, J2, P1, P2AvtRam, Case, CaseOrigin, CaseArrivee, NbGrainesRestan
 																						
 																						
 /**************TEST***************************/
-testplateau:- afficherPlateaux([4,4,4,4,4,4], [4,5,1,2,4,1]),
-			asserta(plateau1([4,4,4,4,4,4])),
-			asserta(plateau2([4,5,1,2,4,1])),
+testplateau:- asserta(plateau1([2,1,0,0,4,4])),
+			asserta(plateau2([1,0,0,15,3,4])),
 			asserta(score1(0)),
 			asserta(score2(0)),
-			tourPlateau(1, 0, 6).
-			%write('graines ramassees '), write(GrainesRamassees), nl,
-			%plateau1(P1), plateau2(P2),
-			%afficherPlateaux(P1, P2).
+			afficherEtat,
+			tourJeu.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISTRIBUTION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %param(Prise, Case, NbGrainesCase, PJ1, NewPJ1, CaseArrive, NbGrainesRestantes)
@@ -157,8 +155,8 @@ ramassageValide(P2Inter, _, P2Inter, NbGraines, NbGraines).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GESTION JEU %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %initialisation
-init:- asserta(plateau1([2,1,0,0,4,4])),
-		asserta(plateau2([1,0,0,15,3,4])),
+init:- asserta(plateau1([4,4,4,4,4,4])),
+		asserta(plateau2([4,4,4,4,4,4])),
 		asserta(score1(0)),
 		asserta(score2(0)).
 
